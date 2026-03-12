@@ -3,71 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Retro Arcade 2026</title>
+    <title>Arcade Hall 2026</title>
     <style>
-        :root { --neon-blue: #00d2ff; --neon-green: #39ff14; --neon-pink: #ff007f; --neon-purple: #bc13fe; }
-        body { margin: 0; background: #0a0a0c; font-family: 'Segoe UI', Roboto, sans-serif; color: white; overflow: hidden; }
+        :root { --neon: #00ff88; --bg: #0a0a0c; }
+        body { margin: 0; background: var(--bg); color: white; font-family: sans-serif; overflow: hidden; }
         
-        /* Menu Styl */
-        #menu { height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; background: radial-gradient(circle, #1a1a2e 0%, #0a0a0c 100%); }
-        h1 { font-size: 3rem; text-shadow: 0 0 20px var(--neon-blue); margin-bottom: 30px; }
-        .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; width: 90%; max-width: 900px; }
-        .card { background: #16161a; border: 2px solid #222; border-radius: 15px; padding: 30px 10px; cursor: pointer; transition: 0.3s; text-align: center; }
-        .card:hover { border-color: var(--neon-blue); box-shadow: 0 0 15px var(--neon-blue); transform: translateY(-5px); }
-        .card i { font-size: 2rem; display: block; margin-bottom: 10px; }
+        /* MENU */
+        #menu { height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; width: 90%; max-width: 500px; }
+        .card { background: #1a1a1a; border: 2px solid #333; padding: 20px; border-radius: 15px; cursor: pointer; text-align: center; font-weight: bold; }
+        .card:hover { border-color: var(--neon); box-shadow: 0 0 10px var(--neon); }
 
-        /* Herní UI */
-        #game-overlay { display: none; position: fixed; inset: 0; background: #000; flex-direction: column; }
-        .header { padding: 15px; background: #111; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #333; }
-        canvas { background: #000; display: block; margin: auto; max-width: 100%; max-height: 70vh; box-shadow: 0 0 50px rgba(0,0,0,1); }
+        /* HRA */
+        #game-screen { display: none; position: fixed; inset: 0; background: #000; flex-direction: column; align-items: center; }
+        .header { width: 100%; padding: 10px; background: #111; display: flex; justify-content: space-around; align-items: center; border-bottom: 2px solid #333; }
+        canvas { border: 2px solid #444; background: #050505; margin-top: 10px; box-shadow: 0 0 20px rgba(0,255,136,0.1); }
         
-        /* Ovládání pro mobil */
-        #mobile-controls { display: none; padding: 10px; justify-content: center; gap: 10px; }
-        .m-btn { background: #333; border: 1px solid #555; color: white; padding: 15px; border-radius: 10px; width: 60px; text-align: center; user-select: none; }
+        /* NÁVOD */
+        .instructions { margin-top: 15px; padding: 10px; background: #1a1a1a; border-radius: 8px; width: 90%; max-width: 300px; font-size: 0.9rem; border-left: 4px solid var(--neon); }
         
-        #game-over-screen { display: none; position: absolute; inset: 0; background: rgba(0,0,0,0.9); flex-direction: column; align-items: center; justify-content: center; z-index: 200; }
-        
-        @media (max-width: 600px) {
-            .grid { grid-template-columns: 1fr 1fr; }
-            h1 { font-size: 2rem; }
-            #mobile-controls { display: flex; }
-        }
+        /* GAME OVER */
+        #game-over { display: none; position: absolute; inset: 0; background: rgba(0,0,0,0.85); flex-direction: column; align-items: center; justify-content: center; z-index: 10; }
+        .btn { background: var(--neon); color: #000; border: none; padding: 10px 20px; border-radius: 5px; font-weight: bold; cursor: pointer; margin-top: 10px; }
     </style>
 </head>
 <body>
 
 <div id="menu">
-    <h1>ARCADE HALL</h1>
+    <h1>🕹️ ARCADE</h1>
     <div class="grid">
-        <div class="card" onclick="start('tetris')" style="border-color: var(--neon-purple)">🔲 Tetris</div>
-        <div class="card" onclick="start('pong')" style="border-color: var(--neon-blue)">🏓 Ping Pong</div>
-        <div class="card" onclick="start('snake')" style="border-color: var(--neon-green)">🐍 Had</div>
-        <div class="card" onclick="start('flappy')" style="border-color: #f1c40f">🐦 Flappy</div>
-        <div class="card" onclick="start('dodger')" style="border-color: var(--neon-pink)">🛡️ Dodger</div>
-        <div class="card" onclick="start('catcher')" style="border-color: #e67e22">🍎 Catcher</div>
+        <div class="card" onclick="start('tetris')">🔲 Tetris</div>
+        <div class="card" onclick="start('pong')">🏓 Ping Pong</div>
     </div>
 </div>
 
-<div id="game-overlay">
+<div id="game-screen">
     <div class="header">
-        <span id="game-title">Hra</span>
-        <b id="score-val" style="color: var(--neon-green); font-size: 1.5rem;">0</b>
-        <button onclick="exitGame()" style="background: red; color: white; border: none; padding: 8px 15px; border-radius: 5px;">Konec</button>
+        <span id="title">HRA</span>
+        <b id="score-text">Skóre: 0</b>
+        <button onclick="location.reload()" style="background:#444; color:white; border:none; padding:5px 10px;">Zpět</button>
     </div>
     
     <canvas id="c"></canvas>
 
-    <div id="mobile-controls">
-        <div class="m-btn" onpointerdown="move(-1)">←</div>
-        <div class="m-btn" onpointerdown="rotate()">↻</div>
-        <div class="m-btn" onpointerdown="move(1)">→</div>
-        <div class="m-btn" onpointerdown="drop()">↓</div>
+    <div class="instructions">
+        <b>Ovládání:</b>
+        <p id="inst-text">Na PC: Šipky. Na mobilu: Klepání/Tažení.</p>
     </div>
 
-    <div id="game-over-screen">
-        <h2 style="color: red; font-size: 3rem;">KONEC HRY</h2>
-        <p id="final-score" style="font-size: 1.5rem;">Skóre: 0</p>
-        <button class="m-btn" style="width: auto; padding: 15px 40px;" onclick="restart()">Hrát znovu</button>
+    <div id="game-over">
+        <h2 style="color:red">KONEC HRY</h2>
+        <p id="final-score">Skóre: 0</p>
+        <button class="btn" onclick="restart()">Zkusit znovu</button>
     </div>
 </div>
 
@@ -75,170 +62,120 @@
 const canvas = document.getElementById("c");
 const ctx = canvas.getContext("2d");
 let mode = "", score = 0, active = false, frame = 0;
-let grid = [], piece = null, nextPiece = null;
 
-// Tetris barvy a tvary
-const COLORS = [null, '#FF0D72', '#0DC2FF', '#0DFF72', '#F538FF', '#FF8E0D', '#FFE138', '#3877FF'];
-const SHAPES = 'ILJOTSZ';
+// Tetris proměnné
+let grid = [], piece = null;
+const SHAPES = [[],[0,1,0,0, 0,1,0,0, 0,1,0,0, 0,1,0,0],[0,2,0, 0,2,0, 0,2,2],[4,4,4,4],[0,5,0, 5,5,5, 0,0,0]];
+const COLORS = [null, '#00d2ff', '#ff007f', '#39ff14', '#bc13fe'];
 
-function createPiece(type) {
-    if (type === 'I') return [[0,1,0,0],[0,1,0,0],[0,1,0,0],[0,1,0,0]];
-    if (type === 'L') return [[0,2,0],[0,2,0],[0,2,2]];
-    if (type === 'J') return [[0,3,0],[0,3,0],[3,3,0]];
-    if (type === 'O') return [[4,4],[4,4]];
-    if (type === 'T') return [[0,5,0],[5,5,5],[0,0,0]];
-    if (type === 'S') return [[0,6,6],[6,6,0],[0,0,0]];
-    if (type === 'Z') return [[7,7,0],[0,7,7],[0,0,0]];
-}
+// Pong proměnné
+let ball = {x:150, y:200, sx:3, sy:3}, pX = 110;
 
 function start(m) {
-    mode = m; score = 0; active = true;
+    mode = m; score = 0; active = true; frame = 0;
     document.getElementById("menu").style.display = "none";
-    document.getElementById("game-overlay").style.display = "flex";
-    document.getElementById("game-over-screen").style.display = "none";
-    document.getElementById("game-title").innerText = m.toUpperCase();
-    
-    canvas.width = 300; canvas.height = 500;
-    if(mode === 'tetris') initTetris();
-    else initArcade();
-    
+    document.getElementById("game-screen").style.display = "flex";
+    document.getElementById("game-over").style.display = "none";
+    document.getElementById("title").innerText = m.toUpperCase();
+
+    if(mode === 'tetris') {
+        canvas.width = 240; canvas.height = 400; // 12x20 políček (20px každé)
+        document.getElementById("inst-text").innerText = "Šipky vlevo/vpravo = pohyb, Nahoru = otočit, Dolů = zrychlit.";
+        grid = Array.from({length: 20}, () => Array(12).fill(0));
+        newPiece();
+    } else {
+        canvas.width = 300; canvas.height = 450;
+        document.getElementById("inst-text").innerText = "Pohybuj myší nebo prstem do stran pro odrážení míčku.";
+        ball = {x:150, y:150, sx:3, sy:3}; pX = 110;
+    }
     loop();
 }
 
-// --- TETRIS LOGIKA ---
-function initTetris() {
-    grid = Array.from({length: 20}, () => Array(12).fill(0));
-    resetPiece();
-}
-
-function resetPiece() {
-    piece = { pos: {x: 4, y: 0}, matrix: createPiece(SHAPES[SHAPES.length * Math.random() | 0]) };
+function newPiece() {
+    const id = Math.floor(Math.random() * (COLORS.length - 1)) + 1;
+    piece = { pos: {x: 4, y: 0}, matrix: [[0,id,0],[id,id,id],[0,0,0]], color: COLORS[id] };
     if (collide()) gameOver();
 }
 
 function collide() {
-    const [m, o] = [piece.matrix, piece.pos];
-    for (let y = 0; y < m.length; ++y) {
-        for (let x = 0; x < m[y].length; ++x) {
-            if (m[y][x] !== 0 && (grid[y + o.y] && grid[y + o.y][x + o.x]) !== 0) return true;
+    for (let y = 0; y < piece.matrix.length; y++) {
+        for (let x = 0; x < piece.matrix[y].length; x++) {
+            if (piece.matrix[y][x] !== 0) {
+                let ny = y + piece.pos.y;
+                let nx = x + piece.pos.x;
+                if (ny >= 20 || nx < 0 || nx >= 12 || grid[ny][nx]) return true;
+            }
         }
     }
     return false;
 }
 
-function merge() {
-    piece.matrix.forEach((row, y) => {
-        row.forEach((value, x) => {
-            if (value !== 0) grid[y + piece.pos.y][x + piece.pos.x] = value;
-        });
-    });
-}
-
-function sweep() {
-    outer: for (let y = grid.length - 1; y > 0; --y) {
-        for (let x = 0; x < grid[y].length; ++x) { if (grid[y][x] === 0) continue outer; }
-        const row = grid.splice(y, 1)[0].fill(0);
-        grid.unshift(row);
-        score += 10;
-        ++y;
-    }
-}
-
-// --- ARCADE LOGIKA (Pong, Snake...) ---
-let obj = {}; 
-function initArcade() {
-    frame = 0;
-    if(mode === 'pong') obj = {x: 150, y: 250, sx: 4, sy: 4, pX: 100};
-    if(mode === 'snake') { obj.snake = [{x:10, y:10}]; obj.d = {x:1, y:0}; obj.f = {x:15, y:15}; }
-    if(mode === 'flappy') obj = {y: 250, v: 0, pipes: []};
-    if(mode === 'dodger' || mode === 'catcher') obj = {pX: 125, items: []};
-}
-
 function loop() {
-    if (!active) return;
+    if(!active) return;
     ctx.fillStyle = "#000"; ctx.fillRect(0,0,canvas.width,canvas.height);
     
-    if (mode === 'tetris') {
-        if (frame++ % 30 === 0) drop();
-        drawTetris();
+    if(mode === 'tetris') {
+        if(frame++ % 30 === 0) { piece.pos.y++; if(collide()) { piece.pos.y--; merge(); newPiece(); } }
+        // Vykreslení ohraničené plochy
+        ctx.strokeStyle = "#333";
+        for(let i=0; i<12; i++) for(let j=0; j<20; j++) ctx.strokeRect(i*20, j*20, 20, 20);
+        
+        grid.forEach((row, y) => row.forEach((v, x) => { if(v) { ctx.fillStyle = COLORS[v]; ctx.fillRect(x*20, y*20, 19, 19); } }));
+        piece.matrix.forEach((row, y) => row.forEach((v, x) => { if(v) { ctx.fillStyle = piece.color; ctx.fillRect((x+piece.pos.x)*20, (y+piece.pos.y)*20, 19, 19); } }));
     } else {
-        frame++;
-        drawArcade();
+        ball.x += ball.sx; ball.y += ball.sy;
+        if(ball.x<5 || ball.x>295) ball.sx *= -1;
+        if(ball.y<5) ball.sy *= -1;
+        if(ball.y > 420 && ball.x > pX && ball.x < pX + 80) { ball.sy = -Math.abs(ball.sy); score++; ball.sx *= 1.05; ball.sy *= 1.05; }
+        if(ball.y > 450) gameOver();
+        ctx.fillStyle = var(--neon);
+        ctx.fillRect(pX, 430, 80, 10);
+        ctx.beginPath(); ctx.arc(ball.x, ball.y, 8, 0, 7); ctx.fill();
     }
     
-    document.getElementById("score-val").innerText = score;
+    document.getElementById("score-text").innerText = "Skóre: " + score;
     requestAnimationFrame(loop);
 }
 
-function drawTetris() {
-    grid.forEach((row, y) => row.forEach((v, x) => { if(v) { ctx.fillStyle = COLORS[v]; ctx.fillRect(x*25, y*25, 24, 24); } }));
-    piece.matrix.forEach((row, y) => row.forEach((v, x) => { if(v) { ctx.fillStyle = COLORS[v]; ctx.fillRect((x+piece.pos.x)*25, (y+piece.pos.y)*25, 24, 24); } }));
-}
-
-function drawArcade() {
-    ctx.fillStyle = "var(--neon-blue)";
-    if(mode === 'pong') {
-        obj.x += obj.sx; obj.y += obj.sy;
-        if(obj.x<5 || obj.x>295) obj.sx *= -1;
-        if(obj.y<5) obj.sy *= -1;
-        if(obj.y>470 && obj.x > obj.pX && obj.x < obj.pX+80) { obj.sy = -Math.abs(obj.sy)*1.05; score++; }
-        if(obj.y>500) gameOver();
-        ctx.fillRect(obj.pX, 480, 80, 10);
-        ctx.beginPath(); ctx.arc(obj.x, obj.y, 8, 0, 7); ctx.fill();
-    }
-    if(mode === 'snake') {
-        if(frame % 10 === 0) {
-            let h = {x: obj.snake[0].x + obj.d.x, y: obj.snake[0].y + obj.d.y};
-            if(h.x<0||h.x>14||h.y<0||h.y>19) return gameOver();
-            obj.snake.unshift(h);
-            if(h.x===obj.f.x && h.y===obj.f.y) { score++; obj.f={x:Math.random()*15|0, y:Math.random()*20|0}; } else obj.snake.pop();
-        }
-        ctx.fillStyle='red'; ctx.fillRect(obj.f.x*20, obj.f.y*20, 18, 18);
-        ctx.fillStyle='var(--neon-green)'; obj.snake.forEach(s=>ctx.fillRect(s.x*20, s.y*20, 18, 18));
-    }
-    // ... další arcade hry zjednodušeně pro délku kódu ...
-}
-
-// Ovládání
-function move(dir) {
-    if(mode==='tetris') { piece.pos.x += dir; if(collide()) piece.pos.x -= dir; }
-    else if(mode==='pong' || mode==='dodger' || mode==='catcher') obj.pX += dir*20;
-}
-function rotate() {
-    if(mode!=='tetris') return;
-    const m = piece.matrix;
-    piece.matrix = m[0].map((_, i) => m.map(row => row[i]).reverse());
-    if(collide()) piece.matrix = m;
-}
-function drop() {
-    if(mode==='tetris') {
-        piece.pos.y++;
-        if(collide()) { piece.pos.y--; merge(); sweep(); resetPiece(); }
+function merge() {
+    piece.matrix.forEach((row, y) => row.forEach((v, x) => {
+        if(v) { grid[y + piece.pos.y][x + piece.pos.x] = v; }
+    }));
+    // Mazání řad
+    outer: for(let y=19; y>=0; y--) {
+        for(let x=0; x<12; x++) if(!grid[y][x]) continue outer;
+        grid.splice(y, 1); grid.unshift(Array(12).fill(0));
+        score += 100; y++;
     }
 }
-
-// Mobilní dotyk / Myš pro Pong
-canvas.onpointermove = (e) => {
-    let rect = canvas.getBoundingClientRect();
-    let x = (e.clientX - rect.left) * (canvas.width / rect.width);
-    if(mode === 'pong' || mode === 'dodger' || mode === 'catcher') obj.pX = x - 40;
-};
 
 function gameOver() {
     active = false;
-    document.getElementById("game-over-screen").style.display = "flex";
-    document.getElementById("final-score").innerText = "Konečné skóre: " + score;
+    document.getElementById("game-over").style.display = "flex";
+    document.getElementById("final-score").innerText = "Skóre: " + score;
 }
 
-function exitGame() { active = false; document.getElementById("menu").style.display = "flex"; document.getElementById("game-overlay").style.display = "none"; }
 function restart() { start(mode); }
 
-// Klávesnice pro PC
+// OVLÁDÁNÍ
 window.onkeydown = (e) => {
-    if(e.key === 'ArrowLeft') move(-1);
-    if(e.key === 'ArrowRight') move(1);
-    if(e.key === 'ArrowUp') rotate();
-    if(e.key === 'ArrowDown') drop();
+    if(mode === 'tetris') {
+        if(e.key === 'ArrowLeft') { piece.pos.x--; if(collide()) piece.pos.x++; }
+        if(e.key === 'ArrowRight') { piece.pos.x++; if(collide()) piece.pos.x--; }
+        if(e.key === 'ArrowDown') { piece.pos.y++; if(collide()) piece.pos.y--; }
+        if(e.key === 'ArrowUp') {
+            const m = piece.matrix;
+            piece.matrix = m[0].map((_, i) => m.map(row => row[i]).reverse());
+            if(collide()) piece.matrix = m;
+        }
+    }
+};
+
+canvas.onpointermove = (e) => {
+    if(mode === 'pong') {
+        let rect = canvas.getBoundingClientRect();
+        pX = (e.clientX - rect.left) * (canvas.width / rect.width) - 40;
+    }
 };
 </script>
 </body>

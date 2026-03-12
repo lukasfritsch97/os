@@ -8,53 +8,50 @@
         :root { --neon: #00ff88; --bg: #0a0a0c; }
         body { margin: 0; background: var(--bg); color: white; font-family: sans-serif; overflow: hidden; }
         
-        /* MENU */
         #menu { height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; width: 90%; max-width: 500px; }
-        .card { background: #1a1a1a; border: 2px solid #333; padding: 20px; border-radius: 15px; cursor: pointer; text-align: center; font-weight: bold; }
-        .card:hover { border-color: var(--neon); box-shadow: 0 0 10px var(--neon); }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 90%; max-width: 500px; }
+        .card { background: #1a1a1a; border: 2px solid #333; padding: 30px 10px; border-radius: 15px; cursor: pointer; text-align: center; font-weight: bold; transition: 0.3s; }
+        .card:hover { border-color: var(--neon); box-shadow: 0 0 15px var(--neon); }
 
-        /* HRA */
         #game-screen { display: none; position: fixed; inset: 0; background: #000; flex-direction: column; align-items: center; }
-        .header { width: 100%; padding: 10px; background: #111; display: flex; justify-content: space-around; align-items: center; border-bottom: 2px solid #333; }
-        canvas { border: 2px solid #444; background: #050505; margin-top: 10px; box-shadow: 0 0 20px rgba(0,255,136,0.1); }
+        .header { width: 100%; padding: 15px; background: #111; display: flex; justify-content: space-around; align-items: center; border-bottom: 2px solid #333; }
         
-        /* NÁVOD */
-        .instructions { margin-top: 15px; padding: 10px; background: #1a1a1a; border-radius: 8px; width: 90%; max-width: 300px; font-size: 0.9rem; border-left: 4px solid var(--neon); }
+        canvas { border: 4px solid #333; background: #000; margin-top: 10px; cursor: none; }
         
-        /* GAME OVER */
-        #game-over { display: none; position: absolute; inset: 0; background: rgba(0,0,0,0.85); flex-direction: column; align-items: center; justify-content: center; z-index: 10; }
-        .btn { background: var(--neon); color: #000; border: none; padding: 10px 20px; border-radius: 5px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        .instructions { margin-top: 15px; padding: 15px; background: #16161a; border-radius: 10px; width: 85%; max-width: 320px; font-size: 0.9rem; border-left: 5px solid var(--neon); line-height: 1.4; }
+        
+        #game-over { display: none; position: absolute; inset: 0; background: rgba(0,0,0,0.9); flex-direction: column; align-items: center; justify-content: center; z-index: 100; }
+        .btn-restart { background: var(--neon); color: #000; border: none; padding: 12px 25px; border-radius: 5px; font-weight: bold; cursor: pointer; margin-top: 15px; font-size: 1.1rem; }
     </style>
 </head>
 <body>
 
 <div id="menu">
-    <h1>🕹️ ARCADE</h1>
+    <h1 style="text-shadow: 0 0 10px var(--neon);">🕹️ ARCADE HALL</h1>
     <div class="grid">
-        <div class="card" onclick="start('tetris')">🔲 Tetris</div>
-        <div class="card" onclick="start('pong')">🏓 Ping Pong</div>
+        <div class="card" onclick="start('tetris')">🔲 TETRIS</div>
+        <div class="card" onclick="start('pong')">🏓 PING PONG</div>
     </div>
 </div>
 
 <div id="game-screen">
     <div class="header">
-        <span id="title">HRA</span>
-        <b id="score-text">Skóre: 0</b>
-        <button onclick="location.reload()" style="background:#444; color:white; border:none; padding:5px 10px;">Zpět</button>
+        <span id="title" style="letter-spacing: 2px;">HRA</span>
+        <b id="score-text" style="color: var(--neon); font-size: 1.4rem;">0</b>
+        <button onclick="location.reload()" style="background:#cc0000; color:white; border:none; padding:8px 15px; border-radius:5px; cursor:pointer;">ZAVŘÍT</button>
     </div>
     
     <canvas id="c"></canvas>
 
     <div class="instructions">
-        <b>Ovládání:</b>
-        <p id="inst-text">Na PC: Šipky. Na mobilu: Klepání/Tažení.</p>
+        <b style="color: var(--neon);">Návod k ovládání:</b><br>
+        <span id="inst-text">Načítám...</span>
     </div>
 
     <div id="game-over">
-        <h2 style="color:red">KONEC HRY</h2>
-        <p id="final-score">Skóre: 0</p>
-        <button class="btn" onclick="restart()">Zkusit znovu</button>
+        <h2 style="color:#ff0044; font-size: 2.5rem; margin:0;">KONEC HRY</h2>
+        <p id="final-score" style="font-size: 1.2rem;">Skóre: 0</p>
+        <button class="btn-restart" onclick="restart()">HRAT ZNOVU</button>
     </div>
 </div>
 
@@ -63,13 +60,12 @@ const canvas = document.getElementById("c");
 const ctx = canvas.getContext("2d");
 let mode = "", score = 0, active = false, frame = 0;
 
-// Tetris proměnné
+// Tetris data
 let grid = [], piece = null;
-const SHAPES = [[],[0,1,0,0, 0,1,0,0, 0,1,0,0, 0,1,0,0],[0,2,0, 0,2,0, 0,2,2],[4,4,4,4],[0,5,0, 5,5,5, 0,0,0]];
-const COLORS = [null, '#00d2ff', '#ff007f', '#39ff14', '#bc13fe'];
+const COLORS = [null, '#00d2ff', '#ff007f', '#39ff14', '#bc13fe', '#f1c40f', '#e67e22'];
 
-// Pong proměnné
-let ball = {x:150, y:200, sx:3, sy:3}, pX = 110;
+// Pong data
+let ball = {x:0, y:0, sx:0, sy:0}, pX = 0;
 
 function start(m) {
     mode = m; score = 0; active = true; frame = 0;
@@ -79,25 +75,35 @@ function start(m) {
     document.getElementById("title").innerText = m.toUpperCase();
 
     if(mode === 'tetris') {
-        canvas.width = 240; canvas.height = 400; // 12x20 políček (20px každé)
-        document.getElementById("inst-text").innerText = "Šipky vlevo/vpravo = pohyb, Nahoru = otočit, Dolů = zrychlit.";
+        canvas.width = 240; canvas.height = 400; // 12x20 polí (20px na pole)
+        document.getElementById("inst-text").innerHTML = "💻 <b>PC:</b> Šipky do stran (pohyb), Nahoru (otočení), Dolů (pád).<br>📱 <b>Mobil:</b> Klepej na levou/pravou stranu.";
         grid = Array.from({length: 20}, () => Array(12).fill(0));
         newPiece();
     } else {
-        canvas.width = 300; canvas.height = 450;
-        document.getElementById("inst-text").innerText = "Pohybuj myší nebo prstem do stran pro odrážení míčku.";
-        ball = {x:150, y:150, sx:3, sy:3}; pX = 110;
+        canvas.width = 320; canvas.height = 480;
+        document.getElementById("inst-text").innerHTML = "💻 <b>PC:</b> Pohybuj myší pro ovládání pálky.<br>📱 <b>Mobil:</b> Tahej prstem pod pálkou.";
+        ball = {x:160, y:100, sx:4, sy:4}; pX = 120;
     }
-    loop();
+    gameLoop();
 }
 
 function newPiece() {
     const id = Math.floor(Math.random() * (COLORS.length - 1)) + 1;
-    piece = { pos: {x: 4, y: 0}, matrix: [[0,id,0],[id,id,id],[0,0,0]], color: COLORS[id] };
-    if (collide()) gameOver();
+    // Jednoduché tvary pro Tetris
+    const shapes = [
+        [[1,1,1,1]], // I
+        [[1,1],[1,1]], // O
+        [[0,1,0],[1,1,1]] // T
+    ];
+    piece = { 
+        pos: {x: 4, y: 0}, 
+        matrix: shapes[Math.floor(Math.random()*shapes.length)],
+        color: COLORS[id]
+    };
+    if (checkCollide()) gameOver();
 }
 
-function collide() {
+function checkCollide() {
     for (let y = 0; y < piece.matrix.length; y++) {
         for (let x = 0; x < piece.matrix[y].length; x++) {
             if (piece.matrix[y][x] !== 0) {
@@ -110,38 +116,56 @@ function collide() {
     return false;
 }
 
-function loop() {
+function gameLoop() {
     if(!active) return;
     ctx.fillStyle = "#000"; ctx.fillRect(0,0,canvas.width,canvas.height);
     
     if(mode === 'tetris') {
-        if(frame++ % 30 === 0) { piece.pos.y++; if(collide()) { piece.pos.y--; merge(); newPiece(); } }
-        // Vykreslení ohraničené plochy
-        ctx.strokeStyle = "#333";
-        for(let i=0; i<12; i++) for(let j=0; j<20; j++) ctx.strokeRect(i*20, j*20, 20, 20);
+        if(frame++ % 35 === 0) { 
+            piece.pos.y++; 
+            if(checkCollide()) { piece.pos.y--; merge(); newPiece(); } 
+        }
+        // Kreslení mřížky pozadí
+        ctx.strokeStyle = "#111";
+        for(let x=0; x<12; x++) for(let y=0; y<20; y++) ctx.strokeRect(x*20, y*20, 20, 20);
         
-        grid.forEach((row, y) => row.forEach((v, x) => { if(v) { ctx.fillStyle = COLORS[v]; ctx.fillRect(x*20, y*20, 19, 19); } }));
-        piece.matrix.forEach((row, y) => row.forEach((v, x) => { if(v) { ctx.fillStyle = piece.color; ctx.fillRect((x+piece.pos.x)*20, (y+piece.pos.y)*20, 19, 19); } }));
+        // Kreslení uložených kostek
+        grid.forEach((row, y) => row.forEach((v, x) => {
+            if(v) { ctx.fillStyle = COLORS[v]; ctx.fillRect(x*20+1, y*20+1, 18, 18); }
+        }));
+        // Kreslení aktivní kostky
+        ctx.fillStyle = piece.color;
+        piece.matrix.forEach((row, y) => row.forEach((v, x) => {
+            if(v) { ctx.fillRect((x+piece.pos.x)*20+1, (y+piece.pos.y)*20+1, 18, 18); }
+        }));
     } else {
+        // PONG LOGIKA
         ball.x += ball.sx; ball.y += ball.sy;
-        if(ball.x<5 || ball.x>295) ball.sx *= -1;
-        if(ball.y<5) ball.sy *= -1;
-        if(ball.y > 420 && ball.x > pX && ball.x < pX + 80) { ball.sy = -Math.abs(ball.sy); score++; ball.sx *= 1.05; ball.sy *= 1.05; }
-        if(ball.y > 450) gameOver();
-        ctx.fillStyle = var(--neon);
-        ctx.fillRect(pX, 430, 80, 10);
-        ctx.beginPath(); ctx.arc(ball.x, ball.y, 8, 0, 7); ctx.fill();
+        if(ball.x < 8 || ball.x > canvas.width - 8) ball.sx *= -1;
+        if(ball.y < 8) ball.sy *= -1;
+        
+        // Kolize s pálkou
+        if(ball.y > 440 && ball.x > pX && ball.x < pX + 80) {
+            ball.sy = -Math.abs(ball.sy);
+            score += 10;
+            ball.sx *= 1.02; ball.sy *= 1.02; // Zrychlení
+        }
+        if(ball.y > canvas.height) gameOver();
+
+        ctx.fillStyle = "#00ff88";
+        ctx.fillRect(pX, 450, 80, 10); // Pálka
+        ctx.beginPath(); ctx.arc(ball.x, ball.y, 8, 0, Math.PI*2); ctx.fill(); // Míček
     }
     
-    document.getElementById("score-text").innerText = "Skóre: " + score;
-    requestAnimationFrame(loop);
+    document.getElementById("score-text").innerText = score;
+    requestAnimationFrame(gameLoop);
 }
 
 function merge() {
     piece.matrix.forEach((row, y) => row.forEach((v, x) => {
-        if(v) { grid[y + piece.pos.y][x + piece.pos.x] = v; }
+        if(v) { grid[y + piece.pos.y][x + piece.pos.x] = COLORS.indexOf(piece.color); }
     }));
-    // Mazání řad
+    // Mazání plných řad
     outer: for(let y=19; y>=0; y--) {
         for(let x=0; x<12; x++) if(!grid[y][x]) continue outer;
         grid.splice(y, 1); grid.unshift(Array(12).fill(0));
@@ -152,31 +176,45 @@ function merge() {
 function gameOver() {
     active = false;
     document.getElementById("game-over").style.display = "flex";
-    document.getElementById("final-score").innerText = "Skóre: " + score;
+    document.getElementById("final-score").innerText = "Konečné skóre: " + score;
 }
 
 function restart() { start(mode); }
 
 // OVLÁDÁNÍ
 window.onkeydown = (e) => {
+    if(!active) return;
     if(mode === 'tetris') {
-        if(e.key === 'ArrowLeft') { piece.pos.x--; if(collide()) piece.pos.x++; }
-        if(e.key === 'ArrowRight') { piece.pos.x++; if(collide()) piece.pos.x--; }
-        if(e.key === 'ArrowDown') { piece.pos.y++; if(collide()) piece.pos.y--; }
+        if(e.key === 'ArrowLeft') { piece.pos.x--; if(checkCollide()) piece.pos.x++; }
+        if(e.key === 'ArrowRight') { piece.pos.x++; if(checkCollide()) piece.pos.x--; }
+        if(e.key === 'ArrowDown') { piece.pos.y++; if(checkCollide()) piece.pos.y--; }
         if(e.key === 'ArrowUp') {
             const m = piece.matrix;
             piece.matrix = m[0].map((_, i) => m.map(row => row[i]).reverse());
-            if(collide()) piece.matrix = m;
+            if(checkCollide()) piece.matrix = m;
         }
     }
 };
 
-canvas.onpointermove = (e) => {
-    if(mode === 'pong') {
-        let rect = canvas.getBoundingClientRect();
-        pX = (e.clientX - rect.left) * (canvas.width / rect.width) - 40;
-    }
+// Ovládání myší a dotykem (Pong)
+const handleMove = (e) => {
+    let rect = canvas.getBoundingClientRect();
+    let clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    let x = (clientX - rect.left) * (canvas.width / rect.width);
+    if(mode === 'pong') pX = x - 40;
 };
+canvas.addEventListener('mousemove', handleMove);
+canvas.addEventListener('touchmove', handleMove);
+
+// Mobilní ovládání Tetris (klikání na strany)
+canvas.addEventListener('touchstart', (e) => {
+    if(mode === 'tetris') {
+        let rect = canvas.getBoundingClientRect();
+        let x = (e.touches[0].clientX - rect.left) * (canvas.width / rect.width);
+        if(x < canvas.width/2) { piece.pos.x--; if(checkCollide()) piece.pos.x++; }
+        else { piece.pos.x++; if(checkCollide()) piece.pos.x--; }
+    }
+});
 </script>
 </body>
 </html>

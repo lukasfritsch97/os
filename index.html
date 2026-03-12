@@ -2,25 +2,28 @@
 <html lang="cs">
 <head>
     <meta charset="UTF-8">
-    <title>Moje HTML5 Hra</title>
+    <title>Pong se skóre</title>
     <style>
-        body { margin: 0; background: #222; display: flex; justify-content: center; align-items: center; height: 100vh; color: white; font-family: sans-serif; }
-        canvas { border: 4px solid #fff; background: #000; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
-        .info { position: absolute; top: 20px; text-align: center; }
+        body { margin: 0; background: #1a1a1a; display: flex; justify-content: center; align-items: center; height: 100vh; color: white; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        canvas { border: 5px solid #444; background: #000; box-shadow: 0 0 30px rgba(0,0,0,0.7); }
+        .ui { position: absolute; top: 10px; text-align: center; pointer-events: none; }
     </style>
 </head>
 <body>
 
-    <div class="info">
-        <h1>Mini Pong</h1>
-        <p>Ovládej pálku pohybem myši</p>
+    <div class="ui">
+        <p>Pohybuj myší pro odrážení</p>
     </div>
 
-    <canvas id="gameCanvas" width="800" height="400"></canvas>
+    <canvas id="gameCanvas" width="800" height="450"></canvas>
 
     <script>
         const canvas = document.getElementById("gameCanvas");
         const ctx = canvas.getContext("2d");
+
+        // Herní proměnné
+        let score = 0;
+        let highScore = 0;
 
         // Nastavení míčku
         let ballX = canvas.width / 2;
@@ -29,46 +32,52 @@
         let ballSpeedY = 5;
         const ballRadius = 10;
 
-        // Nastavení pálky hráče
+        // Nastavení pálky
         const paddleHeight = 100;
-        const paddleWidth = 10;
+        const paddleWidth = 12;
         let paddleY = (canvas.height - paddleHeight) / 2;
 
-        // Sledování pohybu myši
+        // Ovládání myší
         canvas.addEventListener('mousemove', (e) => {
             const rect = canvas.getBoundingClientRect();
-            const root = document.documentElement;
-            const mouseY = e.clientY - rect.top - root.scrollTop;
-            paddleY = mouseY - (paddleHeight / 2);
+            paddleY = e.clientY - rect.top - (paddleHeight / 2);
         });
 
         function update() {
-            // Pohyb míčku
             ballX += ballSpeedX;
             ballY += ballSpeedY;
 
-            // Odraz od horní a dolní stěny
+            // Odraz od stěn (nahoře/dole)
             if (ballY < 0 || ballY > canvas.height) {
                 ballSpeedY = -ballSpeedY;
             }
 
-            // Odraz od pálky (levá strana)
-            if (ballX < paddleWidth) {
-                if (ballY > paddleY && ballY < paddleY + paddleHeight) {
-                    ballSpeedX = -ballSpeedX;
-                    // Mírné zrychlení pro obtížnost
-                    ballSpeedX *= 1.05;
-                    ballSpeedY *= 1.05;
-                } else {
-                    // Reset hry, pokud hráč mine
-                    resetBall();
-                }
-            }
-
-            // Odraz od pravé stěny (místo protihráče)
+            // Odraz od pravé stěny
             if (ballX > canvas.width) {
                 ballSpeedX = -ballSpeedX;
             }
+
+            // Kolize s pálkou (vlevo)
+            if (ballX < paddleWidth) {
+                if (ballY > paddleY && ballY < paddleY + paddleHeight) {
+                    ballSpeedX = -ballSpeedX;
+                    
+                    // --- PŘIDÁNÍ SKÓRE ---
+                    score++;
+                    
+                    // Zrychlení po každém zásahu (aby to bylo těžší)
+                    ballSpeedX *= 1.05;
+                    ballSpeedY *= 1.05;
+                } else {
+                    gameOver();
+                }
+            }
+        }
+
+        function gameOver() {
+            if (score > highScore) highScore = score;
+            score = 0;
+            resetBall();
         }
 
         function resetBall() {
@@ -79,18 +88,26 @@
         }
 
         function draw() {
-            // Vymazání plochy
+            // Pozadí
             ctx.fillStyle = "black";
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // Vykreslení pálky
-            ctx.fillStyle = "white";
+            // Pálka
+            ctx.fillStyle = "#00ff88"; // Zelená pálka
             ctx.fillRect(0, paddleY, paddleWidth, paddleHeight);
 
-            // Vykreslení míčku
+            // Míček
+            ctx.fillStyle = "white";
             ctx.beginPath();
             ctx.arc(ballX, ballY, ballRadius, 0, Math.PI * 2);
             ctx.fill();
+
+            // --- VYKRESLENÍ SKÓRE ---
+            ctx.font = "30px Arial";
+            ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
+            ctx.fillText("Skóre: " + score, canvas.width / 2 - 50, 50);
+            ctx.font = "15px Arial";
+            ctx.fillText("Nejlepší: " + highScore, canvas.width / 2 - 35, 80);
         }
 
         function gameLoop() {
